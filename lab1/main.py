@@ -70,43 +70,15 @@ for model in models:
     plt.show()
 
 
-# # Дрібне дерево рішень
-# balanced_dt_model = DecisionTreeClassifier(max_depth=3, class_weight='balanced')
-# balanced_dt_model.fit(X_train, y_train)
-
-# # Глибоке дерево рішень
-# balanced_deep_dt_model = DecisionTreeClassifier(max_depth=10, class_weight='balanced')  # Вказати глибину дерева
-# balanced_deep_dt_model.fit(X_train, y_train)
-
-# # Випадковий ліс на дрібних деревах
-# balanced_rf_small_model = RandomForestClassifier(n_estimators=10, max_depth=5, class_weight='balanced')  # Вказати кількість дерев та їх глибину
-# balanced_rf_small_model.fit(X_train, y_train)
-
-# # Випадковий ліс на глибоких деревах
-# balanced_rf_deep_model = RandomForestClassifier(n_estimators=10, max_depth=20, class_weight='balanced')  # Вказати кількість дерев та їх глибину
-# balanced_rf_deep_model.fit(X_train, y_train)
-
-# # Оцінка якості моделей
-# balanced_models = [balanced_dt_model, balanced_deep_dt_model, balanced_rf_small_model, balanced_rf_deep_model]
-# for balanced_model in balanced_models:
-#     y_pred = balanced_model.predict(X_test)
-#     y_pred_proba = balanced_model.predict_proba(X_test)[:, 1]
-
-#     acc = accuracy_score(y_test, y_pred)
-#     precision = precision_score(y_test, y_pred)
-#     recall = recall_score(y_test, y_pred)
-#     f1 = f1_score(y_test, y_pred)
-#     logloss = log_loss(y_test, y_pred_proba)
-#     print(f"\nMetrics for Balanced Model ",balanced_model,": ")
-#     print(f"Accuracy: {acc}, Precision: {precision}, Recall: {recall}, F1-score: {f1}, Log-loss: {logloss}")
 
 # Наприклад, використаємо збалансованість класів для RandomForestClassifier
 balanced_rf_model = RandomForestClassifier(max_depth=20, class_weight='balanced')
 balanced_rf_model.fit(X_train, y_train)
 
 # Оцінка якості моделі, яка уникає помилок II роду
-y_pred_balanced = balanced_rf_model.predict(X_test)
 y_pred_proba_balanced = balanced_rf_model.predict_proba(X_test)[:, 1]
+threshold = 0.1
+y_pred_balanced = (y_pred_proba_balanced > threshold).astype(int)
 
 acc_balanced = accuracy_score(y_test, y_pred_balanced)
 precision_balanced = precision_score(y_test, y_pred_balanced)
