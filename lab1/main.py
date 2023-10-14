@@ -33,9 +33,15 @@ rf_small_model.fit(X_train, y_train)
 rf_deep_model = RandomForestClassifier(n_estimators=10, max_depth=20)  # Вказати кількість дерев та їх глибину
 rf_deep_model.fit(X_train, y_train)
 
+shared_plot = True
+
 # Оцінка якості моделей
+if shared_plot:
+    plt.figure(figsize=(10, 4))
+
 models = [dt_model, deep_dt_model, rf_small_model, rf_deep_model]
-for model in models:
+names = ['дрібне дерево рішень', 'глибоке дерево рішень', 'випадковий ліс на дрібних деревах', 'випадковий ліс на глибоких деревах']
+for i, model in enumerate(models):
     y_pred = model.predict(X_test)
     y_pred_proba = model.predict_proba(X_test)[:, 1]
 
@@ -51,27 +57,27 @@ for model in models:
     precision, recall, _ = precision_recall_curve(y_test, y_pred_proba)
     fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
 
-    plt.figure(figsize=(10, 4))
+    if not shared_plot:
+        plt.figure(figsize=(10, 4))
 
     plt.subplot(1, 2, 1)
-    plt.plot(recall, precision, label='Precision-Recall curve')
+    plt.plot(recall, precision, label=names[i])
     plt.xlabel('Recall')
     plt.ylabel('Precision')
     plt.title('Precision-Recall Curve')
     plt.legend(loc='best')
 
     plt.subplot(1, 2, 2)
-    plt.plot(fpr, tpr, label='ROC curve')
+    plt.plot(fpr, tpr, label=names[i])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
     plt.title('ROC Curve')
     plt.legend(loc='best')
 
-    plt.show()
+    if not shared_plot:
+        plt.show()
 
-
-
-# Наприклад, використаємо збалансованість класів для RandomForestClassifier
+# Використаємо збалансованість класів для RandomForestClassifier
 balanced_rf_model = RandomForestClassifier(max_depth=20, class_weight='balanced')
 balanced_rf_model.fit(X_train, y_train)
 
@@ -88,3 +94,26 @@ logloss_balanced = log_loss(y_test, y_pred_proba_balanced)
 
 print(f"\nMetrics for Balanced Model:")
 print(f"Accuracy: {acc_balanced}, Precision: {precision_balanced}, Recall: {recall_balanced}, F1-score: {f1_balanced}, Log-loss: {logloss_balanced}")
+
+# Precision-Recall і ROC-криві
+precision, recall, _ = precision_recall_curve(y_test, y_pred_proba)
+fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
+
+if not shared_plot:
+    plt.figure(figsize=(10, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(recall, precision, label='Уникання помилок II роду')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.title('Precision-Recall Curve')
+plt.legend(loc='best')
+
+plt.subplot(1, 2, 2)
+plt.plot(fpr, tpr, label='Уникання помилок II роду')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.legend(loc='best')
+
+plt.show()
