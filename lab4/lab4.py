@@ -4,13 +4,13 @@ from keras.applications import VGG19, ResNet50
 from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 
-# GPU configuration
+# Конфігурація GPU
 config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
 sess = tf.compat.v1.Session(config=config)
 tf.compat.v1.keras.backend.set_session(sess)
 
-# Loading data
+# Завантаження даних
 train_dir = './train'
 val_dir = './val'
 test_dir = './test'
@@ -42,14 +42,14 @@ test_generator = test_datagen.flow_from_directory(
     class_mode='binary'
 )
 
-# Fully connected network
+# Повністю з'єднана мережа
 model_dense = models.Sequential()
 model_dense.add(layers.Flatten(input_shape=(150, 150, 3)))
 model_dense.add(layers.Dense(256, activation='relu'))
 model_dense.add(layers.Dense(128, activation='relu'))
 model_dense.add(layers.Dense(1, activation='sigmoid'))
 
-# Convolutional neural network
+# Згорткова нейронна мережа
 model_conv = models.Sequential()
 model_conv.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(150, 150, 3)))
 model_conv.add(layers.MaxPooling2D((2, 2)))
@@ -59,7 +59,7 @@ model_conv.add(layers.Flatten())
 model_conv.add(layers.Dense(64, activation='relu'))
 model_conv.add(layers.Dense(1, activation='sigmoid'))
 
-# Transfer learning for VGG19
+# Перенавчання для VGG19
 base_model_vgg = VGG19(weights='imagenet', include_top=False, input_shape=(150, 150, 3))
 base_model_vgg.trainable = False
 
@@ -69,7 +69,7 @@ model_transfer_vgg.add(layers.Flatten())
 model_transfer_vgg.add(layers.Dense(256, activation='relu'))
 model_transfer_vgg.add(layers.Dense(1, activation='sigmoid'))
 
-# Transfer learning for ResNet
+# Перенавчання для ResNet
 base_model_resnet = ResNet50(weights='imagenet', include_top=False, input_shape=(150, 150, 3))
 base_model_resnet.trainable = False
 
@@ -79,7 +79,7 @@ model_transfer_resnet.add(layers.Flatten())
 model_transfer_resnet.add(layers.Dense(256, activation='relu'))
 model_transfer_resnet.add(layers.Dense(1, activation='sigmoid'))
 
-# Compilation and training of models
+# Компіляція та навчання моделей
 model_dense.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 history_dense = model_dense.fit(train_generator, epochs=3, validation_data=val_generator)
 
@@ -92,22 +92,22 @@ history_transfer_vgg = model_transfer_vgg.fit(train_generator, epochs=3, validat
 model_transfer_resnet.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 history_transfer_resnet = model_transfer_resnet.fit(train_generator, epochs=3, validation_data=val_generator)
 
-# Increased number of epochs and plotting learning curves
+# Збільшення кількості епох та побудова кривих навчання
 def plot_learning_curves(history, title):
-    plt.plot(history.history['accuracy'], label='train')
-    plt.plot(history.history['val_accuracy'], label='validation')
+    plt.plot(history.history['accuracy'], label='навчання')
+    plt.plot(history.history['val_accuracy'], label='валідація')
     plt.title(title)
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
+    plt.xlabel('Епоха')
+    plt.ylabel('Точність')
     plt.legend()
     plt.show()
 
-# Increased epochs to 6 for demonstration
+# Збільшення кількості епох до 6 для демонстрації
 history_dense = model_dense.fit(train_generator, epochs=6, validation_data=val_generator)
-plot_learning_curves(history_dense, 'Dense Model Learning Curves')
+plot_learning_curves(history_dense, 'Криві навчання для повністю з\'єднаної моделі')
 
 history_conv = model_conv.fit(train_generator, epochs=6, validation_data=val_generator)
-plot_learning_curves(history_conv, 'Convolutional Model Learning Curves')
+plot_learning_curves(history_conv, 'Криві навчання для згорткової моделі')
 
-# Remember to close the session when done
+# Не забудьте закрити сеанс, коли закінчите
 sess.close()
